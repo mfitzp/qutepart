@@ -51,6 +51,7 @@ if USE_QT_PY == PYQT5:
 
     # qWaitForWindowShown is not provided in Qt5; see bug: https://bugreports.qt-project.org/browse/QTBUG-23185
     QTest.qWaitForWindowShown = QTest.qWaitForWindowActive
+    QStyleOptionViewItemV4 = QStyleOptionViewItem
 
 elif USE_QT_PY == PYSIDE:
     from PySide.QtGui import *
@@ -59,6 +60,16 @@ elif USE_QT_PY == PYSIDE:
     from PySide.QtTest import *
 
     pyqtSignal = Signal
+    
+    from datetime import datetime as datetime_, timedelta
+
+    @staticmethod
+    def qWait(t):
+        end = datetime_.now() + timedelta(milliseconds=t)
+        while datetime_.now() < end:
+            QApplication.processEvents()
+            
+    QTest.qWait = qWait
 
 elif USE_QT_PY == PYQT4:
 
@@ -84,4 +95,3 @@ elif USE_QT_PY == PYQT4:
         def getSaveFileName(*args, **kwargs):
             return QFileDialog.getSaveFileName_(*args, **kwargs), None
 
-    QStyleOptionViewItem = QStyleOptionViewItemV4

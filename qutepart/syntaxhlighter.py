@@ -51,36 +51,49 @@ class GlobalTimer:
     """
 
     def __init__(self):
-        self._timer = QTimer(QApplication.instance())
-        self._timer.setSingleShot(True)
-        self._timer.timeout.connect(self._onTimer)
-
+        self._timer = None
         self._scheduledCallbacks = []
 
     def isActive(self):
-        return self._timer.isActive()
+        if self._timer is None:
+            return False
+        else:
+            return self._timer.isActive()
 
     def scheduleCallback(self, callback):
         if not callback in self._scheduledCallbacks:
             self._scheduledCallbacks.append(callback)
-            self._timer.start()
+            self.startTimer()
+            
+    def startTimer(self):
+        self._timer = QTimer(QApplication.instance())
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._onTimer)
+        self._timer.start()
+        
+    def stopTimer(self):
+        if self._timer:
+            self._timer.stop()
+        self._timer = None
 
     def unScheduleCallback(self, callback):
         if callback in self._scheduledCallbacks:
             self._scheduledCallbacks.remove(callback)
 
         if not self._scheduledCallbacks:
-            self._timer.stop()
+            self.stopTimer()
 
     def isCallbackScheduled(self, callback):
         return callback in self._scheduledCallbacks
 
     def _onTimer(self):
+        self.stopTimer()
         if self._scheduledCallbacks:
             callback = self._scheduledCallbacks.pop()
             callback()
+            
         if self._scheduledCallbacks:
-            self._timer.start()
+            self.startTimer()
 
 
 """Global var, because main loop time usage shall not depend on Qutepart instances count

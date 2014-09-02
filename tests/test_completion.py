@@ -32,8 +32,7 @@ class Test(unittest.TestCase):
     def test_down_selects_first(self):
         self.qpart.text = 'aaaa\nbbbb\ncccX\ndddd\ncccY'
 
-        while self.app.hasPendingEvents():
-            self.app.processEvents()
+        self.app.processEvents()
 
         QTest.keyClicks(self.qpart, "ccc")
         QTest.keyClick(self.qpart, Qt.Key_Down)
